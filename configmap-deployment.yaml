@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-configmap
+  namespace: test
+data:
+  NGINX_USER: "tei"
+  nginx.properties: |
+    blah_blah=abcd
+    blah_blah2=efgh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+      version: dev
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: dev
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        env:
+          - name: NGINX_USER
+            valueFrom:
+              configMapKeyRef:
+                name: nginx-configmap
+                key: NGINX_USER
+        volumeMounts:
+        - name: config
+          mountPath: "/config"
+          readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: nginx-configmap
+            items:
+            - key: "nginx.properties"
+              path: "nginx.properties"

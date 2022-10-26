@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+  namespace: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+      version: dev
+  template:
+    metadata:
+      labels:
+        app: nginx
+        version: dev
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
